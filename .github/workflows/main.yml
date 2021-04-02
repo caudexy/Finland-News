@@ -28,5 +28,5 @@ jobs:
             password: ${{ secrets.GITHUB_TOKEN }}
             registry: docker.pkg.github.com
             repository: geometrein/finland-news/finland-news-eng
-            tag_with_ref: true
+            tags: geometrein/finland-news/finland-news-eng:$(echo $GITHUB_SHA | head -c7)
 
