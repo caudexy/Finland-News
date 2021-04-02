@@ -13,14 +13,10 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
 load_dotenv()
+
 TOKEN = os.getenv('BOT_TOKEN')
-
-CHANNEL_ID = "@Finland_News_Feed"
-CHANNEL_ID = "@yle_news_live"
-NEWSFEED = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS"
-GOOD_NEW_FEED = "https://www.goodnewsfinland.com/"
-
-INTERVAL = 30
+INTERVAL = 10
+TESTING = False
 
 def titleEditor(title):
     """
@@ -30,7 +26,7 @@ def titleEditor(title):
     escaped_title = re.escape(title)
     return str(escaped_title)
 
-def linkEditor(link):
+def linkEditor(link, newsfeed_link):
     """
     This function edits the link for instant view.
     """
@@ -38,14 +34,20 @@ def linkEditor(link):
     # link start and rhash by telegram
     instant_view_start = "https://t.me/iv?url=https%3A%2F%2F"
 
-    if search("yle.fi", link):
-        instant_view_rhash = "&rhash=04f872b445da2a" # Yle instant view
+    if search("Ids=YLE_NEWS", newsfeed_link):
+        instant_view_rhash = "&rhash=04f872b445da2a" # Yle ENG instant view
 
-    elif search("goodnewsfinland.com", link):
+    elif search("goodnewsfinland.com", newsfeed_link):
         instant_view_rhash = "&rhash=28aaa3b7244f2a" # Good News finland instant view
 
+    elif search("Ids=YLE_UUTISET", newsfeed_link):
+        instant_view_rhash = "&rhash=09be4d57db5cf1" # Yle FIN instant view
+
+    elif search("Ids=YLE_NOVOSTI", newsfeed_link):
+        instant_view_rhash = "&rhash=04f872b445da2a" # Yle RUS instant view
+
     else:
-        instant_view_rhash = "&rhash=04f872b445da2a" # if not found use YLE instant view
+        instant_view_rhash = "&rhash=04f872b445da2a" # if not found use YLE ENG instant view
 
     # splitting the link
     link = link.split("//",1)
@@ -58,17 +60,17 @@ def linkEditor(link):
 
     return link
 
-def sender(title,link):
+def sender(title, link, channel_id, newsfeed_link):
     """
     This function sends the message(as a link) to the Telegram Channel.
     """
     try:   
         bot = telegram.Bot(token=TOKEN)
 
-        edited_link = linkEditor(link)
+        edited_link = linkEditor(link, newsfeed_link)
 
         bot.send_message(
-                    chat_id=CHANNEL_ID, 
+                    chat_id=channel_id, 
                     text=f"{title}[\.]({edited_link})\n[Link to the Article]({link})",
                     parse_mode=telegram.ParseMode.MARKDOWN_V2
                 )
@@ -96,16 +98,24 @@ def writeMemory(memory, feed_id):
     except:
         print("Experienced a problem writing to memory.json")
             
-def yle_parser():
+def yle_eng_parser():
     """
     """
+    yle_newsfeed_eng = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS"
+    memory_key = "yle_feed"
+
+    if TESTING == False:
+        channel_id = "@Finland_News_Feed" 
+    else:
+        channel_id = "@yle_news_live"
+
     # parsing the RSS feed
-    NewsFeed = feedparser.parse(NEWSFEED)
+    NewsFeed = feedparser.parse(yle_newsfeed_eng)
     # selecting the last article on the feed
     newest_article = NewsFeed.entries[0]
     # Save the title of last article
     memory = openMemory()
-    sent_articles = memory["yle_feed"]
+    sent_articles = memory[memory_key]
 
     # checking for new articles
     if newest_article.id not in sent_articles:
@@ -117,27 +127,31 @@ def yle_parser():
         edited_title = titleEditor(title)
         
         # sending the message
-        sender(edited_title, link)
-        print("New article from YLE sent!!!")
+        sender(edited_title, link, channel_id, yle_newsfeed_eng)
+        print("New article from YLE (ENG) sent!!!")
 
         sent_articles.clear()
         # appending last 5 articles to a list
         for article in NewsFeed.entries[:5]:
             sent_articles.append(article.id)
 
-        memory["yle_feed"] = sent_articles
+        memory[memory_key] = sent_articles
 
         # writing to memory
-        writeMemory(memory,"yle_feed")
+        writeMemory(memory, memory_key)
         
     else:
-        print("No new articles found in YLE RSS feed.")
+        print("No new articles found in YLE (ENG) RSS feed.")
 
 def good_fin_parser():
     """
     """
+    good_newsfeed_eng = "https://www.goodnewsfinland.com/"
+    channel_id = "@yle_news_live"
+
+
     try:
-        page = requests.get(GOOD_NEW_FEED)
+        page = requests.get(good_newsfeed_eng)
         soup = BeautifulSoup(page.content, 'html.parser')
 
         results = soup.find(id='primary')
@@ -159,7 +173,7 @@ def good_fin_parser():
 
         if title != sent_article:
             edited_title = titleEditor(title)
-            sender(edited_title, link)
+            sender(edited_title, link, channel_id, good_newsfeed_eng)
             print("Good News Finland Article sent")
 
             memory["good_feed"] = title
@@ -170,19 +184,115 @@ def good_fin_parser():
     except:
         print("Experienced a problem when parsing the GOOD NEWS article.")
 
+def yle_fin_parser():
+    """
+    """
+    yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET"
+    memory_key = "yle_fin_feed"
+
+    if TESTING == False:
+        channel_id = "@suomiuutiset" 
+    else:
+        channel_id = "@yle_news_live"
+
+    # Parsing the RSS feed
+    NewsFeed = feedparser.parse(yle_newsfeed_fi)
+    # selecting the last article on the feed
+    newest_article = NewsFeed.entries[0]
+    # Save the title of last article
+    memory = openMemory()
+    sent_articles = memory[memory_key]
+
+    # checking for new articles
+    if newest_article.id not in sent_articles:
+        # Parsing the link & the title
+        link = newest_article.link
+        title = newest_article.title
+        
+        # formatting the link & the title
+        edited_title = titleEditor(title)
+        
+        # sending the message
+        sender(edited_title, link, channel_id, yle_newsfeed_fi)
+        print("New article from YLE (FIN) sent!!!")
+
+        sent_articles.clear()
+        # appending last 5 articles to a list
+        for article in NewsFeed.entries[:5]:
+            sent_articles.append(article.id)
+
+        memory[memory_key] = sent_articles
+
+        # Writing to Memory
+        writeMemory(memory, memory_key)
+        
+    else:
+        print("No new articles found in YLE (FIN) RSS feed.")
+
+def yle_rus_parser():
+    """
+    """
+    yle_newsfeed_ru = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NOVOSTI"
+    memory_key = "yle_rus_feed"
+
+    if TESTING == False:
+        channel_id = "@Finland_News_RUS"
+    else:
+        channel_id = "@yle_news_live"
+
+    # Parsing the RSS feed
+    NewsFeed = feedparser.parse(yle_newsfeed_ru)
+    # Selecting the last article on the feed
+    newest_article = NewsFeed.entries[0]
+    # Save the title of last article
+    memory = openMemory()
+    sent_articles = memory[memory_key]
+
+    # Checking for new articles
+    if newest_article.id not in sent_articles:
+        # Parsing the link & the title
+        link = newest_article.link
+        title = newest_article.title
+        
+        # Formatting the link & the title
+        edited_title = titleEditor(title)
+        
+        # Sending the message
+        sender(edited_title, link, channel_id, yle_newsfeed_ru)
+        print("New article from YLE (RUS) sent!!!")
+
+        sent_articles.clear()
+        # Appending last 5 articles to a list
+        for article in NewsFeed.entries[:5]:
+            sent_articles.append(article.id)
+
+        memory[memory_key] = sent_articles
+
+        # Writing to Memory
+        writeMemory(memory, memory_key)
+        
+    else:
+        print("No new articles found in YLE (RUS) RSS feed.")
+        
 def main():
     """
     """
     while True:
         
-        yle_parser()
-        time.sleep(INTERVAL)
-
         # If its 10:00 run this script
         current_time = time.strftime("%H:%M", time.localtime())
         if (current_time >= "10:00") and (current_time < "10:05"):
             good_fin_parser()
             time.sleep(INTERVAL)
+        
+        yle_eng_parser()
+        time.sleep(INTERVAL)
+
+        yle_rus_parser()
+        time.sleep(INTERVAL)
+
+        yle_fin_parser()
+        time.sleep(INTERVAL)
 
 
 if __name__ == "__main__":
