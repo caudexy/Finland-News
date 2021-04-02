@@ -80,7 +80,7 @@ def openMemory():
     This function reads the name of last article from memory.
     """
     try:
-        with open("memory.json", "r") as read_file:
+        with open("memory/memory.json", "r") as read_file:
             memory = json.load(read_file)
         return memory
     except:
@@ -91,7 +91,7 @@ def writeMemory(memory, feed_id):
     This function writes the name of last article to memory.
     """
     try:
-        with open("memory.json", "w") as write_file:
+        with open("memory/memory.json", "w") as write_file:
             json.dump(memory, write_file)
     except:
         print("Experienced a problem writing to memory.json")
