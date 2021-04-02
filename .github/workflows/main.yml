@@ -31,5 +31,5 @@ jobs:
             password: ${{ secrets.GITHUB_TOKEN }}
             registry: docker.pkg.github.com
             repository: geometrein/finland-news/finland-news-eng
-            tags: geometrein/finland-news/finland-news-eng:$GITHUB_SHA
+            tag_with_sha: true
 
