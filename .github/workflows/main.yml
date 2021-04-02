@@ -53,7 +53,7 @@ jobs:
             docker rm $(echo $CONTAINER_NAME_EN)
             # Run a new container from a new image
             docker run -d \
-            --env BOT_TOKEN=${{ secrets.BOT_TOKEN }}
+            --env BOT_TOKEN=${{ secrets.BOT_TOKEN }} \
             --restart always \
             --network br0 \
             -v point_en:/bot/point \
