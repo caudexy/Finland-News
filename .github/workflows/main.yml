@@ -12,7 +12,10 @@ on:
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
-
+  
+env:
+  git_hash: $(git rev-parse --short "$GITHUB_SHA")
+  
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
   push_to_registry:
@@ -28,5 +31,5 @@ jobs:
             password: ${{ secrets.GITHUB_TOKEN }}
             registry: docker.pkg.github.com
             repository: geometrein/finland-news/finland-news-eng
-            tags: geometrein/finland-news/finland-news-eng:$(echo $GITHUB_SHA | head -c7)
+            tags: geometrein/finland-news/finland-news-eng:${{git_hash}}
 
