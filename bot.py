@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 load_dotenv()
 
 TOKEN = os.getenv('BOT_TOKEN')
-INTERVAL = 10
+INTERVAL = 5
 TESTING = False
 
 def titleEditor(title):
@@ -40,11 +40,14 @@ def linkEditor(link, newsfeed_link):
     elif search("goodnewsfinland.com", newsfeed_link):
         instant_view_rhash = "&rhash=28aaa3b7244f2a" # Good News finland instant view
 
-    elif search("Ids=YLE_UUTISET", newsfeed_link):
+    elif search("YLE_UUTISET.rss", newsfeed_link):
         instant_view_rhash = "&rhash=09be4d57db5cf1" # Yle FIN instant view
 
     elif search("Ids=YLE_NOVOSTI", newsfeed_link):
         instant_view_rhash = "&rhash=04f872b445da2a" # Yle RUS instant view
+
+    elif search("www.iltalehti.fi", newsfeed_link):
+        instant_view_rhash = "&rhash=237fbc14463822" # Iltalehti Fin instant view
 
     else:
         instant_view_rhash = "&rhash=04f872b445da2a" # if not found use YLE ENG instant view
@@ -187,7 +190,8 @@ def good_fin_parser():
 def yle_fin_parser():
     """
     """
-    yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET"
+    #yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET" # Recent news (too many news)
+    yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss"
     memory_key = "yle_fin_feed"
 
     if TESTING == False:
@@ -273,7 +277,53 @@ def yle_rus_parser():
         
     else:
         print("No new articles found in YLE (RUS) RSS feed.")
+
+def iltalehti_fin_parser():
+    """
+    """
+    iltalehti_newsfeed_fin = "https://www.iltalehti.fi/rss/uutiset.xml"
+    memory_key = "iltalehti_fin_feed"
+
+    if TESTING == False:
+        channel_id = "@suomiuutiset" 
+    else:
+        channel_id = "@yle_news_live"
+
+    # Parsing the RSS feed
+    NewsFeed = feedparser.parse(iltalehti_newsfeed_fin)
+    # selecting the last article on the feed
+    newest_article = NewsFeed.entries[0]
+    # Save the title of last article
+    memory = openMemory()
+    sent_articles = memory[memory_key]
+
+    # checking for new articles
+    if newest_article.id not in sent_articles:
+        # Parsing the link & the title
+        link = newest_article.link
+        title = newest_article.title
         
+        # formatting the link & the title
+        edited_title = titleEditor(title)
+        
+        # sending the message
+        sender(edited_title, link, channel_id, iltalehti_newsfeed_fin)
+        print("New article from Iltalehti FIN sent!!!")
+
+        sent_articles.clear()
+        # appending last 5 articles to a list
+        for article in NewsFeed.entries[:5]:
+            sent_articles.append(article.id)
+
+        memory[memory_key] = sent_articles
+
+        # Writing to Memory
+        writeMemory(memory, memory_key)
+        
+    else:
+        print("No new articles found in Iltalehti FIN RSS feed.")
+   
+
 def main():
     """
     """
@@ -284,6 +334,7 @@ def main():
         if (current_time >= "10:00") and (current_time < "10:05"):
             good_fin_parser()
             time.sleep(INTERVAL)
+
         
         yle_eng_parser()
         time.sleep(INTERVAL)
@@ -292,6 +343,9 @@ def main():
         time.sleep(INTERVAL)
 
         yle_fin_parser()
+        time.sleep(INTERVAL)
+
+        iltalehti_fin_parser()
         time.sleep(INTERVAL)
 
 
