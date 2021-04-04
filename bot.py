@@ -151,8 +151,11 @@ def good_fin_parser():
     """
     """
     good_newsfeed_eng = "https://www.goodnewsfinland.com/"
-    channel_id = "@yle_news_live"
 
+    if TESTING == False:
+        channel_id = "@Finland_News_Feed" 
+    else:
+        channel_id = "@yle_news_live"
 
     try:
         page = requests.get(good_newsfeed_eng)
@@ -336,7 +339,6 @@ def main():
             good_fin_parser()
             time.sleep(INTERVAL)
 
-        
         yle_eng_parser()
         time.sleep(INTERVAL)
 
