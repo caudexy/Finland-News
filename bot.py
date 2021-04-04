@@ -24,6 +24,7 @@ def titleEditor(title):
     - Escapes possible special charecters with Regular Expressions
     """
     escaped_title = re.escape(title)
+    escaped_title = escaped_title.replace("!","\!")
     return str(escaped_title)
 
 def linkEditor(link, newsfeed_link):
@@ -345,8 +346,11 @@ def main():
         yle_fin_parser()
         time.sleep(INTERVAL)
 
-        iltalehti_fin_parser()
-        time.sleep(INTERVAL)
+        current_hour = time.strftime("%H", time.localtime())
+        if int(current_hour) % 6 == 0:
+            iltalehti_fin_parser()
+            time.sleep(INTERVAL)
+
 
 
 if __name__ == "__main__":
