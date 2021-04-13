@@ -349,7 +349,7 @@ def main():
         time.sleep(INTERVAL)
 
         current_hour = time.strftime("%H", time.localtime())
-        if int(current_hour) % 6 == 0:
+        if int(current_hour) % 8 == 0:
             iltalehti_fin_parser()
             time.sleep(INTERVAL)
 
