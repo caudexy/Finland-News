@@ -1,5 +1,6 @@
 
-# Instant View Templates for each news source
+# Instant View Templates
+[Instant View](https://instantview.telegram.org/) allows Telegram users to view articles in a consistent way, with zero loading time. Since every website is different, Telegram needs a set of instructions for generating the instant view. These instructions are a set of XPath expressions pointing at the crucial parts of the webpage.
 
 ## Yle
 ```
