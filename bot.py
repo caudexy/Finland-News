@@ -6,22 +6,25 @@ import json
 
 import feedparser
 import telegram
-from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 
+# Load environment variables
 load_dotenv()
 
 TOKEN = os.getenv('BOT_TOKEN')
-INTERVAL = 5
+INTERVAL = 5 # Frequency of checking for new articles in seconds
 TESTING = False
 
 def titleEditor(title):
     """
-    This function edits the article title.
-    - Escapes possible special charecters with Regular Expressions
+    This function edits the article title. Escapes possible special charecters with Regular Expressions
+    Args: 
+        Title (str): The Title of the Article
+    Returns: 
+        link (str): Escaped title of the article
     """
     escaped_title = re.escape(title)
     escaped_title = escaped_title.replace("!","\!")
@@ -30,8 +33,12 @@ def titleEditor(title):
 def linkEditor(link, newsfeed_link):
     """
     This function edits the link for instant view.
+    Args:
+        link (str): Link of the article
+        newsfeed_link (str): Link of the newsfeed RSS
+    Returns:
+        link (str): link with correct Instant View rhash added
     """
-
     # link start and rhash by telegram
     instant_view_start = "https://t.me/iv?url=https%3A%2F%2F"
 
@@ -67,6 +74,13 @@ def linkEditor(link, newsfeed_link):
 def sender(title, link, channel_id, newsfeed_link):
     """
     This function sends the message(as a link) to the Telegram Channel.
+    Args:
+        title (str): Article Title 
+        link (str): Article Link
+        channel_id (str): Telegram channel ID
+        newsfeed_link (str): RSS newsfeed link
+    Returns:
+        (bool) True if article was sent otherwise False
     """
     try:   
         bot = telegram.Bot(token=TOKEN)
@@ -78,12 +92,17 @@ def sender(title, link, channel_id, newsfeed_link):
                     text=f"{title}[\.]({edited_link})\n[Link to the Article]({link})",
                     parse_mode=telegram.ParseMode.MARKDOWN_V2
                 )
+        return True
+
     except:
         print("Experienced a problem when sending the article")
+        return False
 
 def openMemory():
     """
-    This function reads the name of last article from memory.
+    This function reads the names of last articles from memory.
+    Args: None
+    Returns: None
     """
     try:
         with open("memory/memory.json", "r") as read_file:
@@ -104,6 +123,9 @@ def writeMemory(memory, feed_id):
             
 def yle_eng_parser():
     """
+    This function parses news from YLE's english newsfeed
+    Args: None
+    Returns: None
     """
     yle_newsfeed_eng = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NEWS"
     memory_key = "yle_feed"
@@ -149,6 +171,9 @@ def yle_eng_parser():
 
 def good_fin_parser():
     """
+    This function parses news from Good News Finland's newsfeed
+    Args: None
+    Returns: None
     """
     good_newsfeed_eng = "https://www.goodnewsfinland.com/"
 
@@ -193,6 +218,9 @@ def good_fin_parser():
 
 def yle_fin_parser():
     """
+    This function parses news from YLE's Finnish newsfeed
+    Args: None
+    Returns: None
     """
     #yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_UUTISET" # Recent news (too many news)
     yle_newsfeed_fi = "https://feeds.yle.fi/uutiset/v1/majorHeadlines/YLE_UUTISET.rss"
@@ -239,6 +267,9 @@ def yle_fin_parser():
 
 def yle_rus_parser():
     """
+    This function parses news from YLE's russian newsfeed
+    Args: None
+    Returns: None
     """
     yle_newsfeed_ru = "https://feeds.yle.fi/uutiset/v1/recent.rss?publisherIds=YLE_NOVOSTI"
     memory_key = "yle_rus_feed"
@@ -284,6 +315,9 @@ def yle_rus_parser():
 
 def iltalehti_fin_parser():
     """
+    This function parses news from Iltalehti's finnish newsfeed
+    Args: None
+    Returns: None
     """
     iltalehti_newsfeed_fin = "https://www.iltalehti.fi/rss/uutiset.xml"
     memory_key = "iltalehti_fin_feed"
@@ -327,12 +361,11 @@ def iltalehti_fin_parser():
     else:
         print("No new articles found in Iltalehti FIN RSS feed.")
    
-
 def main():
     """
+    Singin' in the Main()
     """
     while True:
-        
         # If its 10:00 run this script
         current_time = time.strftime("%H:%M", time.localtime())
         if (current_time >= "10:00") and (current_time < "10:05"):
@@ -349,11 +382,9 @@ def main():
         time.sleep(INTERVAL)
 
         current_hour = time.strftime("%H", time.localtime())
-        if int(current_hour) % 8 == 0:
+        if int(current_hour) % 8 == 0: # Limiting the number of articles from Iltalehti
             iltalehti_fin_parser()
             time.sleep(INTERVAL)
-
-
 
 if __name__ == "__main__":
     main() 
