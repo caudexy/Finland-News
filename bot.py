@@ -66,7 +66,7 @@ def linkEditor(link, newsfeed_link):
     # replacing "/"" with "%2F"
     link = link.replace("/", "%2F")
 
-    # Adding link start and rhash by telegram
+    # adding link start and rhash by telegram
     link = instant_view_start + link + instant_view_rhash
 
     return link
@@ -138,7 +138,7 @@ def yle_eng_parser():
     NewsFeed = feedparser.parse(yle_newsfeed_eng)
     # selecting the last article on the feed
     newest_article = NewsFeed.entries[0]
-    # Save the title of last article
+    # save the title of last article
     memory = openMemory()
     sent_articles = memory[memory_key]
 
