@@ -16,7 +16,7 @@ load_dotenv()
 
 TOKEN = os.getenv('BOT_TOKEN')
 INTERVAL = 5 # Frequency of checking for new articles in seconds
-TESTING = False  # Post to test channel
+TESTING = False  # When True the Bot will post to test channel
 
 def titleEditor(title):
     """
