@@ -93,7 +93,6 @@ def sender(title, link, channel_id, newsfeed_link):
                     parse_mode=telegram.ParseMode.MARKDOWN_V2
                 )
         return True
-
     except:
         print("Experienced a problem when sending the article")
         return False
@@ -164,8 +163,7 @@ def yle_eng_parser():
         memory[memory_key] = sent_articles
 
         # writing to memory
-        writeMemory(memory, memory_key)
-        
+        writeMemory(memory, memory_key)   
     else:
         print("No new articles found in YLE (ENG) RSS feed.")
 
@@ -212,7 +210,6 @@ def good_fin_parser():
             writeMemory(memory,"good_feed")
         else:
             pass
-
     except:
         print("Experienced a problem when parsing the GOOD NEWS article.")
 
@@ -260,8 +257,7 @@ def yle_fin_parser():
         memory[memory_key] = sent_articles
 
         # Writing to Memory
-        writeMemory(memory, memory_key)
-        
+        writeMemory(memory, memory_key)  
     else:
         print("No new articles found in YLE (FIN) RSS feed.")
 
@@ -309,7 +305,6 @@ def yle_rus_parser():
 
         # Writing to Memory
         writeMemory(memory, memory_key)
-        
     else:
         print("No new articles found in YLE (RUS) RSS feed.")
 
@@ -356,8 +351,7 @@ def iltalehti_fin_parser():
         memory[memory_key] = sent_articles
 
         # Writing to Memory
-        writeMemory(memory, memory_key)
-        
+        writeMemory(memory, memory_key)  
     else:
         print("No new articles found in Iltalehti FIN RSS feed.")
    
