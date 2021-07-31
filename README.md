@@ -25,7 +25,7 @@ Initially the bot was intended for personal use. I wanted to be informed about t
 # Support us!
 It costs us 5€ per month to keep the bot running. If you like the idea and would like to support us you can donate by clicking on the button below. 
 
-[![Telegram Badge](https://img.shields.io/badge/Sponsor-on_GitHub-0088CC?style=for-the-badge&logo=github&logoColor=white)](https://www.buymeacoffee.com/Geometrein)
+[![Telegram Badge](https://img.shields.io/badge/Sponsor-on_GitHub-0088CC?style=for-the-badge&logo=github&logoColor=white)](https://github.com/sponsors/Geometrein)
 [![Telegram Badge](https://img.shields.io/badge/Donate-on_buy_me_a_coffee-0088CC?style=for-the-badge&logo=buymeacoffee&logoColor=white)](https://www.buymeacoffee.com/Geometrein)
 
 # Contact
