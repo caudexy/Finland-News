@@ -360,11 +360,9 @@ def main():
     Singin' in the Main()
     """
     while True:
-        # If its 10:00 run this script
+        # Get current time
         current_time = time.strftime("%H:%M", time.localtime())
-        if (current_time >= "10:00") and (current_time < "10:05"):
-            good_fin_parser()
-            time.sleep(INTERVAL)
+        current_hour = time.strftime("%H", time.localtime())
 
         yle_eng_parser()
         time.sleep(INTERVAL)
@@ -375,7 +373,6 @@ def main():
         yle_fin_parser()
         time.sleep(INTERVAL)
 
-        current_hour = time.strftime("%H", time.localtime())
         if int(current_hour) % 8 == 0: # Limiting the number of articles from Iltalehti
             iltalehti_fin_parser()
             time.sleep(INTERVAL)
